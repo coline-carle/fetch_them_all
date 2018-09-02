@@ -75,7 +75,7 @@ def fetch_not_ok_items(db, apikey):
     FROM
       items
     WHERE
-      status IS NULL OR status != 200 or status != 404
+      status IS NULL OR (status != 200 AND status != 404)
     ORDER BY
       id
     ''').fetchall()
