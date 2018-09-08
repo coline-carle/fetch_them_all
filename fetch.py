@@ -19,9 +19,9 @@ def parse_args():
 
 def get_sitemap_urls(conn, path):
   conn.request("GET", path)
-  print("fetching {}".format(path))
   req = conn.getresponse()
-  print(req.status, req.reason)
+  print("fetching ", "www.wowhead.com{}".format(path),  "->", req.status, req.reason)
+
   content = req.read()
   root = ET.fromstring(content)
   locs = root.findall(".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
@@ -55,7 +55,7 @@ def fetch_item(conn, apikey, id):
   path = "/wow/item/{}?apikey={}".format(id, apikey)
   conn.request("GET", path)
   req = conn.getresponse()
-  print("fetching item {} returned status {} {}".format(id, req.status, req.reason))
+  print("fetching item", id, "->", req.status, req.reason)
   content = req.read()
   return req.status, content
 
@@ -66,6 +66,8 @@ def fill_database_with_wowhead_ids(db):
   for sitemap_path in item_sitemap_paths:
     items = get_itemid_list(conn, sitemap_path)
     create_item_lines(db, items)
+
+  print() # empty line
 
 def fetch_not_ok_items(db, apikey):
   conn = http.client.HTTPSConnection(api_entrypoint)
@@ -105,9 +107,9 @@ def fetch_not_ok_items(db, apikey):
           id = ?
         ''',
         (status, id))
-                                    
-    db.commit()                   
-  
+
+    db.commit()
+
 
 def main():
   args = parse_args()
@@ -115,7 +117,7 @@ def main():
   db = sqlite3.connect(args.sqlite)
   create_table(db)
 
-  
+
   fill_database_with_wowhead_ids(db)
   fetch_not_ok_items(db, args.apikey)
 
